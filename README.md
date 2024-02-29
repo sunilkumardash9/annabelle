@@ -4,7 +4,7 @@ This is a [Plasmo extension](https://docs.plasmo.com/) project bootstrapped with
 
 First, run the development server:
 
-```bash
+```bash 
 pnpm dev
 # or
 npm run dev

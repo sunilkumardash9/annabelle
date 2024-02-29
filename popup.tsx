@@ -11,7 +11,7 @@ const ChatPopup = () => {
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
   
-  
+   
   useEffect(() => {
     setIsButtonActive(message.length > 0); 
   }, [message]);

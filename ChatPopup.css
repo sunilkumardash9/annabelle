@@ -82,7 +82,7 @@
   flex-grow: 1;
   padding: 20px 40px 10px 10px;
   background-color: rgb(34, 33, 33);
-  border: none; /* Removes border from the input field */
+  border: none; /* Removes border from the input field */ 
   color: white;
   border-radius: 20px;
   margin: 0 10px;
