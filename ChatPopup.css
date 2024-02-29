@@ -1,0 +1,168 @@
+/* Add this at the top of your ChatPopup.css file */
+@font-face {
+  font-family: 'Dune-Rise';
+  src: url('./assets/Dune_Rise.otf') format('opentype');
+  font-weight: bold;
+  font-style: bold;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  border: none;
+  box-shadow: none;
+  outline: none;
+}
+
+/* Chat popup styling */
+.chat-popup {
+  position: relative;
+  background-color: black;
+  color: rgb(255, 255, 255);
+  padding: 10px;
+  height: 550px;
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  /* border-radius: 10px; If you want rounded corners */
+  border: none; /* No border */
+  box-shadow: none; /* No shadow */
+}
+
+.chat-header {
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  margin-bottom: 10px;
+  position: absolute;
+  left: 10px;
+}
+
+.chat-logo {
+  width: 200px; /* Set the width of your logo */
+  height: auto; /* Set the height of your logo */
+  margin-right: 10px; /* Add some space between the logo and the title */
+}
+
+.chat-title {
+  font-family: 'Dune-Rise', sans-serif; /* Use the custom font */
+  font-size: 1.5em; 
+  font-weight: bold; 
+  color: #ffffff; 
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+.chat-messages {
+  overflow-y: auto;
+  flex-grow: 1;
+  padding: 10px 0;
+}
+
+.chat-form {
+  display: flex;
+  border: none; 
+  position: relative;
+}
+
+.chat-input-container {
+  position: relative;
+  flex-grow: 1; /* Take up available space */
+  display: flex;
+  align-items: center;
+  background-color: rgb(34, 33, 33);
+  border-radius: 20px;
+}
+
+
+.chat-input {
+  flex-grow: 1;
+  padding: 20px 40px 10px 10px;
+  background-color: rgb(34, 33, 33);
+  border: none; /* Removes border from the input field */
+  color: white;
+  border-radius: 20px;
+  margin: 0 10px;
+  padding-right: 30px;
+  margin-right: 80px;
+  resize: none; /* Remove the resize handle */
+  overflow: hidden; /* Hide the scrollbar */
+  min-height: 30px; /* Minimum height of the textarea */
+  align-items: center;
+}
+
+.send-button {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px; 
+  height: 40px; 
+  background-color: #0ABAB5;
+  border: none;
+  border-radius: 50%; 
+  padding: 0;
+  cursor: pointer;
+  outline: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.3s ease;
+}
+
+.send-button.disabled {
+  background-color: #4b4949; 
+}
+
+.send-icon {
+  width: 20px; 
+  height: 20px; 
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+.send-button {
+  position: absolute;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background-color: #424141;
+}
+
+.send-button.active {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background-color: #11e7e0;
+}
+
+.clip-icon{
+  width: 20px; 
+  height: 20px; 
+}
+
+
+.upload-image {
+  position: absolute;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background-color: #424141;
+  right: 42px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  border-radius: 50%; 
+  padding: 0;
+  cursor: pointer;
+  outline: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.3s ease;
+  
+}
