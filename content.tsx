@@ -171,7 +171,10 @@ const ButtonContainer = () => {
           canvas.width = width;
           canvas.height = height;
           ctx.drawImage(img, x, y, width, height, 0, 0, width, height);
-          setPopupContent(<img src={canvas.toDataURL("image/png")} alt="Screenshot" />);
+          setPopupContent(<>
+            <img src={canvas.toDataURL("image/png")} alt="Screenshot" />
+            <div style={{ color: "white", marginTop: "10px" }}>{"This is the description text"}</div>
+          </>);
         };
         img.src = response.screenshotUrl;
       }
@@ -182,6 +185,17 @@ const ButtonContainer = () => {
   const handleClosePopup = () => {
     setShowPopup(false);
     setIsVisible(false);
+  };
+
+  const handleCancelSelection = () => {
+    setIsSelecting(false);
+    // setSelectionFinished(false);
+    setSelectionArea({ x: 0, y: 0, width: 0, height: 0 });
+  };
+
+  const handleExitScreenCapture = () => {
+    setIsSelecting(false);
+    setSelectionArea({ x: 0, y: 0, width: 0, height: 0 });
   };
 
 
@@ -226,6 +240,24 @@ const ButtonContainer = () => {
         </div>
       )}
       {isSelecting && (
+        <>
+        <button
+            style={{
+              position: "fixed",
+              top: "10px",
+              right: "10px",
+              backgroundColor: "white",
+              color: "black",
+              border: "1px solid black",
+              borderRadius: "5px",
+              padding: "5px 10px",
+              cursor: "pointer",
+              zIndex: 10001, // Ensure the button is above the overlay
+            }}
+            onClick={handleExitScreenCapture}
+          >
+            Exit Screen Capture
+          </button>
         <div
           style={{
             position: "fixed",
@@ -264,7 +296,26 @@ const ButtonContainer = () => {
               border: "2px solid red",
             }}
           ></div>
+          <button
+            style={{
+              position: "absolute",
+              top: `${selectionArea.y - 30}px`, // Position the button above the selection area
+              left: `${selectionArea.x + selectionArea.width}px`, // Position the button to the right of the selection area
+              backgroundColor: "white",
+              color: "black",
+              border: "1px solid black",
+              borderRadius: "50%",
+              width: "25px",
+              height: "25px",
+              cursor: "pointer",
+              display: selectionArea.width && selectionArea.height ? "block" : "none", // Only show the button if a selection area exists
+            }}
+            onClick={handleCancelSelection}
+          >
+            &times; {/* Cross symbol */}
+          </button>
         </div>
+        </>
       )}
       {showPopup && (
   <Popup
