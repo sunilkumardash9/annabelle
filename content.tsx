@@ -1,19 +1,26 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 
-const Popup = ({ text, onClose, position, onDrag}) => {
+const Popup = ({ children, onClose, position }) => {
   const [isDragging, setIsDragging] = useState(false);
-  const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [popupPosition, setPopupPosition] = useState(position);
 
   const handleMouseDown = (event) => {
     setIsDragging(true);
-    setStartPosition({ x: event.clientX - position.left, y: event.clientY - position.top });
+    setDragStart({ x: event.clientX, y: event.clientY });
     event.preventDefault(); // Prevent text selection
   };
 
   const handleMouseMove = (event) => {
     if (isDragging) {
-      onDrag({ left: event.clientX - startPosition.x, top: event.clientY - startPosition.y });
+      const dx = event.clientX - dragStart.x;
+      const dy = event.clientY - dragStart.y;
+      setPopupPosition((prevPosition) => ({
+        top: Math.max(0, prevPosition.top + dy),
+        left: Math.max(0, prevPosition.left + dx),
+      }));
+      setDragStart({ x: event.clientX, y: event.clientY });
     }
   };
 
@@ -23,56 +30,59 @@ const Popup = ({ text, onClose, position, onDrag}) => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (!event.target.closest("#popup-content")) {
+      if (!event.target.closest('#popup-content')) {
         onClose();
       }
     };
 
     if (isDragging) {
-      document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mouseup", handleMouseUp);
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
     }
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
 
     return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isDragging, startPosition, onDrag, onClose]);
+  }, [isDragging, dragStart, onClose]);
 
   return (
     <div
       id="popup-content"
       style={{
-        position: "fixed",
-        top: Math.min(Math.max(position.top, 0), window.innerHeight - 200) + "px",
-        bottom: Math.max(0,window.innerHeight - position.top - 200) + "px",
-        left:Math.min(position.left, window.innerWidth - 320) + "px",
-        backgroundColor: "black",
-        color: "white",
-        padding: "20px",
-        borderRadius: "10px",
+        position: 'fixed',
+        top: `${Math.min(Math.max(popupPosition.top, 0), window.innerHeight - 200)}px`,
+        left: `${Math.min(Math.max(popupPosition.left, 0), window.innerWidth - 300)}px`,
+        backgroundColor: 'black',
+        color: 'white',
+        padding: '20px',
+        borderRadius: '10px',
         zIndex: 1000,
-        width: "300px",
-        height: "200px",
-        overflow: "auto",
-        cursor: isDragging ? "grabbing" : "grab",
+        width: '300px',
+        height: '200px',
+        overflow: 'auto',
+        cursor: isDragging ? 'grabbing' : 'grab',
       }}
       onMouseDown={handleMouseDown}
     >
-      {text}
+      {children}
     </div>
   );
 };
 
+
 const ButtonContainer = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [buttonPosition, setButtonPosition] = useState({ top: 0, left: 0 });
-  const [selectedText, setSelectedText] = useState("");
   const [showPopup, setShowPopup] = useState(false);
   const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });
+  const [selectionArea, setSelectionArea] = useState({ x: 0, y: 0, width: 0, height: 0 });
+  const [isSelecting, setIsSelecting] = useState(false);
+  const [popupContent, setPopupContent] = useState<React.ReactNode>(null);
+  
 
   const updatePosition = () => {
     const selection = window.getSelection();
@@ -93,7 +103,7 @@ const ButtonContainer = () => {
       if (text?.length > 0) {
         updatePosition();
         setIsVisible(true);
-        setSelectedText(text);
+        setPopupContent(text);
       } else {
         setIsVisible(false);
       }
@@ -124,14 +134,56 @@ const ButtonContainer = () => {
     setIsVisible(false);
   };
 
+  const handleButton2Click = () => {
+    setIsSelecting(true);
+    setIsVisible(false);
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "Enter" && isSelecting) {
+        setIsSelecting(false);
+        setShowPopup(true);
+        captureSelectionArea();
+      }
+    };
+
+    if (isSelecting) {
+      document.addEventListener("keydown", handleKeyDown);
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isSelecting, selectionArea]);
+
+  const captureSelectionArea = () => {
+    chrome.runtime.sendMessage({ action: "captureVisibleTab" }, (response) => {
+      if (response.screenshotUrl) {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+          const x = Math.min(selectionArea.x, selectionArea.x + selectionArea.width);
+          const y = Math.min(selectionArea.y, selectionArea.y + selectionArea.height);
+          const width = Math.abs(selectionArea.width);
+          const height = Math.abs(selectionArea.height);
+          canvas.width = width;
+          canvas.height = height;
+          ctx.drawImage(img, x, y, width, height, 0, 0, width, height);
+          setPopupContent(<img src={canvas.toDataURL("image/png")} alt="Screenshot" />);
+        };
+        img.src = response.screenshotUrl;
+      }
+    });
+  };
+  
+
   const handleClosePopup = () => {
     setShowPopup(false);
     setIsVisible(false);
   };
 
-  const handleDragPopup = (newPosition) => {
-    setPopupPosition(newPosition);
-  };
 
   return (
     <>
@@ -156,7 +208,7 @@ const ButtonContainer = () => {
             }}
             onClick={handleButtonClick}
           >
-            Button 1
+            Text
           </button>
           <button
             style={{
@@ -167,19 +219,61 @@ const ButtonContainer = () => {
               border: "none",
               cursor: "pointer",
             }}
+            onClick={handleButton2Click}
           > 
-            Button 2
+            Image
           </button>
         </div>
       )}
-      {showPopup && (
-        <Popup
-          text={selectedText}
-          onClose={handleClosePopup}
-          position={popupPosition}
-          onDrag={handleDragPopup}
-        />
+      {isSelecting && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.3)",
+            cursor: "crosshair",
+            zIndex: 10000,
+          }}
+          onMouseDown={(event) => {
+            setSelectionArea({ x: event.clientX, y: event.clientY, width: 0, height: 0 });
+          }}
+          onMouseMove={(event) => {
+            if (event.buttons === 1) {
+              setSelectionArea((prev) => ({
+                x: prev.x,
+                y: prev.y,
+                width: event.clientX - prev.x,
+                height: event.clientY - prev.y,
+              }));
+            }
+          }}
+          onMouseUp={() => {
+            setIsSelecting(true);
+          }}
+        >
+          <div
+            style={{
+              position: "absolute",
+              top: `${selectionArea.y}px`,
+              left: `${selectionArea.x}px`,
+              width: `${selectionArea.width}px`,
+              height: `${selectionArea.height}px`,
+              border: "2px solid red",
+            }}
+          ></div>
+        </div>
       )}
+      {showPopup && (
+  <Popup
+    onClose={handleClosePopup}
+    position={popupPosition}
+  >
+    {popupContent}
+  </Popup>
+)}
     </>
   );
 };
