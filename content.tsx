@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
+import openAITextGenerator from "./llms/openAI";
+import {geminiGeneratorText, geminiGeneratorImage} from "./llms/geminiAi"
+import "./loading.css"
+
 
 const Popup = ({ children, onClose, position }) => {
   const [isDragging, setIsDragging] = useState(false);
@@ -81,8 +85,10 @@ const ButtonContainer = () => {
   const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });
   const [selectionArea, setSelectionArea] = useState({ x: 0, y: 0, width: 0, height: 0 });
   const [isSelecting, setIsSelecting] = useState(false);
-  const [popupContent, setPopupContent] = useState<React.ReactNode>(null);
-  
+  const [streamedContent, setStreamedContent] = useState<React.ReactNode>(null);
+  const [selectedText, setSelectedText] = useState("");
+
+
 
   const updatePosition = () => {
     const selection = window.getSelection();
@@ -99,11 +105,11 @@ const ButtonContainer = () => {
 
   useEffect(() => {
     const handleSelectionChange = () => {
-      const text = window.getSelection()?.toString().trim();
+      const text:string = window.getSelection()?.toString().trim() || "";
+      setSelectedText(text)
       if (text?.length > 0) {
         updatePosition();
-        setIsVisible(true);
-        setPopupContent(text);
+        setIsVisible(true)
       } else {
         setIsVisible(false);
       }
@@ -129,12 +135,16 @@ const ButtonContainer = () => {
     }
   }, [isVisible, buttonPosition]);
 
-  const handleButtonClick = () => {
+  const handleTextButtonClick = async () => {
+    setStreamedContent("");
+        geminiGeneratorText(selectedText, (content) => {
+            setStreamedContent((prevContent) => prevContent + content);
+        });
     setShowPopup(true);
     setIsVisible(false);
   };
 
-  const handleButton2Click = () => {
+  const handleImageButtonClick = () => {
     setIsSelecting(true);
     setIsVisible(false);
   };
@@ -171,10 +181,34 @@ const ButtonContainer = () => {
           canvas.width = width;
           canvas.height = height;
           ctx.drawImage(img, x, y, width, height, 0, 0, width, height);
-          setPopupContent(<>
-            <img src={canvas.toDataURL("image/png")} alt="Screenshot" />
-            <div style={{ color: "white", marginTop: "10px" }}>{"This is the description text"}</div>
-          </>);
+          const imageData = canvas.toDataURL("image/png");
+          setStreamedContent(
+            <>
+              <img src={imageData} alt="Screenshot" style={{ maxWidth: "100%", maxHeight: "200px" }}/>
+              <div className="wave-loader">
+                 <div className="dot"></div>
+                 <div className="dot"></div>
+                 <div className="dot"></div>
+              </div>
+            </>
+          );
+          
+          geminiGeneratorImage(imageData, (streamedText) => {
+            setStreamedContent((prevContent) =>{
+              const prevTextContent = typeof prevContent.props.children[1].props.children === "string"
+              ? prevContent.props.children[1].props.children
+              : "";
+              const newTextContent = prevTextContent + streamedText;
+             return (
+              <>
+                <img src={imageData} alt="Screenshot" style={{ maxWidth: "100%", maxHeight: "200px" }}/>
+                <div style={{ color: "white", marginTop: "10px" }}>
+                    {newTextContent}
+                </div>
+              </>)
+          })
+            }
+          )
         };
         img.src = response.screenshotUrl;
       }
@@ -189,7 +223,6 @@ const ButtonContainer = () => {
 
   const handleCancelSelection = () => {
     setIsSelecting(false);
-    // setSelectionFinished(false);
     setSelectionArea({ x: 0, y: 0, width: 0, height: 0 });
   };
 
@@ -220,7 +253,7 @@ const ButtonContainer = () => {
               border: "none",
               cursor: "pointer",
             }}
-            onClick={handleButtonClick}
+            onClick={handleTextButtonClick}
           >
             Text
           </button>
@@ -233,7 +266,7 @@ const ButtonContainer = () => {
               border: "none",
               cursor: "pointer",
             }}
-            onClick={handleButton2Click}
+            onClick={handleImageButtonClick}
           > 
             Image
           </button>
@@ -322,7 +355,7 @@ const ButtonContainer = () => {
     onClose={handleClosePopup}
     position={popupPosition}
   >
-    {popupContent}
+    {streamedContent || "Couldn't load response"}
   </Popup>
 )}
     </>
