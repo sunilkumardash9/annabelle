@@ -1,0 +1,237 @@
+@font-face {
+    font-family: 'Dune-Rise';
+    src: url('../assets/Dune_Rise.otf') format('opentype');
+    font-weight: bold;
+    font-style: bold;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    border: none;
+    box-shadow: none;
+    outline: none;
+}
+
+/* Chat popup styling */
+.chat-popup {
+    position: fixed;
+    background-color: black;
+    color: rgb(255, 255, 255);
+    padding: 10px;
+    height: 100vh; /* Adjusted to fill the side panel */
+    width: 95%; /* Adjusted to fill the side panel */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border: none;
+    box-shadow: none;
+    padding-bottom: 20px;
+}
+
+.chat-header {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.chat-logo {
+    width: 150px; /* Adjusted to fit the side panel */
+    height: auto;
+    margin-right: 10px;
+}
+
+.chat-messages {
+    overflow-y: auto;
+    flex-grow: 1;
+    padding: 10px 0;
+}
+
+.chat-form {
+    display: flex;
+    border: none;
+}
+
+.chat-input-container {
+    position: relative;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    background-color: rgb(34, 33, 33);
+    border-radius: 20px;
+    padding-right: 80px; 
+    padding-top: 15px;
+    padding-block-end: 10px;
+    margin-bottom: 40px;
+}
+
+.chat-input {
+    flex-grow: 1;
+    padding: 10px;
+    background-color: rgb(34, 33, 33);
+    border: none;
+    color: white;
+    border-radius: 20px;
+    margin-right: 10px;
+    resize: none;
+    overflow: hidden;
+    min-height: 30px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.send-button,
+.upload-image {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    right: 10px;
+    background-color: #424141;
+    border: none;
+    border-radius: 50%;
+    padding: 0;
+    cursor: pointer;
+    outline: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.3s ease;
+}
+
+.upload-image.upload-button-adjustment {
+    right: 43px; /* Adjust this value to reduce the distance */
+}
+.send-button {
+    right: 10px;
+}
+
+.upload-image {
+    right: 50px;
+}
+
+.send-icon,
+.clip-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.send-button.active {
+    background-color: #11e7e0;
+}
+
+
+.uploaded-images-container {
+    display: flex;
+    justify-content: start;
+    overflow-x: auto; /* Allows horizontal scrolling if there are many images */
+    align-items: center;
+    margin-bottom: 10px; /* Space between images and chat input */
+    padding: 5px;
+}
+
+.uploaded-image {
+    position: relative; /* This is crucial for positioning the cancel button */
+    flex-shrink: 0;
+    margin-right: 10px;
+    margin-bottom: 10px; /* Add some space between rows of images */
+}
+
+.uploaded-image img {
+    max-width: 100px; /* Maximum width of images */
+    max-height: 100px; /* Maximum height of images */
+    border-radius: 5px; /* Optional: Adds rounded corners to images */
+}
+
+.cancel-image-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: rgba(255, 0, 0, 0.7); /* Semi-transparent red background */
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.chat-messages {
+    overflow-y: auto;
+    flex-grow: 1;
+    padding: 10px;
+}
+
+.message {
+    display: flex;
+    margin-bottom: 30px;
+    font-size: 16px;
+    align-items: flex-start;
+}
+
+.message-images {
+    display: flex;
+}
+
+.message-image {
+    max-width: 100px;
+    max-height: 100px;
+    margin-right: 10px;
+}
+.message.user {
+    background-color: rgb(34, 33, 33); 
+    padding: 10px;
+    border-radius: 2 0px;
+    margin-bottom: 10px;
+    align-items: normal;
+}
+
+.message.system {
+    background-color: #000000; 
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    align-items:normal;
+}
+
+.message-logo {
+    width: 30px; /* Adjust the width as needed */
+    height: 30px; /* Adjust the height as needed */
+    margin-right: 10px; /* Space between the logo and the message */
+}
+
+
+/*loading icon*/
+.loading-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.loading-icon div {
+    width: 8px;
+    height: 8px;
+    background-color: #1186e6;
+    border-radius: 50%;
+    margin: 0 3px;
+    animation: wave 1.5s infinite ease-in-out;
+}
+
+.loading-icon div:nth-child(2) {
+    animation-delay: -0.3s;
+}
+
+.loading-icon div:nth-child(3) {
+    animation-delay: -0.6s;
+}
+
+@keyframes wave {
+    0%, 80%, 100% {
+        transform: scale(0);
+    }
+    40% {
+        transform: scale(1);
+    }
+}
