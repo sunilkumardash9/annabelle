@@ -1,9 +1,21 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import openAITextGenerator from "./llms/openAI";
-import {geminiGeneratorText, geminiGeneratorImage} from "./llms/geminiAi"
+import {geminiGeneratorText, geminiGeneratorImage, geminiGeneratorImageArray} from "./llms/geminiAi"
 import "./loading.css"
+import openIcon from "./assets/share.svg"
 
+const formatResponse = (response) => {
+  return response.split("**").map((text, index) => {
+    if (index % 2 === 0) {
+      // Regular text
+      return text.split(". ").map((sentence, idx, arr) => `${sentence}${idx < arr.length - 1 ? ".<br/>" : ""}`).join("");
+    } else {
+      // Bold text
+      return `<strong>${text}</strong>`;
+    }
+  }).join("");
+};
 
 const Popup = ({ children, onClose, position }) => {
   const [isDragging, setIsDragging] = useState(false);
@@ -11,9 +23,14 @@ const Popup = ({ children, onClose, position }) => {
   const [popupPosition, setPopupPosition] = useState(position);
 
   const handleMouseDown = (event) => {
-    setIsDragging(true);
-    setDragStart({ x: event.clientX, y: event.clientY });
-    event.preventDefault(); // Prevent text selection
+    // setIsDragging(true);
+    // setDragStart({ x: event.clientX, y: event.clientY });
+    // event.preventDefault(); // Prevent text selection
+    if (!event.target.classList.contains("streamed-text")) {
+      setIsDragging(true);
+      setDragStart({ x: event.clientX, y: event.clientY });
+      event.preventDefault(); 
+    }
   };
 
   const handleMouseMove = (event) => {
@@ -53,6 +70,10 @@ const Popup = ({ children, onClose, position }) => {
     };
   }, [isDragging, dragStart, onClose]);
 
+  const handleOpenSidePanel = () => {
+    chrome.runtime.sendMessage({ action: "openSidePanel" });
+  };
+
   return (
     <div
       id="popup-content"
@@ -65,13 +86,30 @@ const Popup = ({ children, onClose, position }) => {
         padding: '20px',
         borderRadius: '10px',
         zIndex: 1000,
-        width: '300px',
-        height: '200px',
+        width: '400px',
+        height: '300px',
         overflow: 'auto',
         cursor: isDragging ? 'grabbing' : 'grab',
       }}
       onMouseDown={handleMouseDown}
     >
+      <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        marginBottom: '10px',
+      }}
+    >
+      <div style={{ fontSize: '18px', fontWeight: 'bold', marginRight: '10px', marginLeft: '5px'}}>
+        annabelle
+      </div>
+      <img
+        src={openIcon}
+        alt="Open Side Panel"
+        style={{ cursor: 'pointer', width: '24px', height: '24px'}}
+        onClick={handleOpenSidePanel}
+      />
+    </div>
       {children}
     </div>
   );
@@ -105,12 +143,16 @@ const ButtonContainer = () => {
 
   useEffect(() => {
     const handleSelectionChange = () => {
-      const text:string = window.getSelection()?.toString().trim() || "";
+      const selection = window.getSelection();
+      if (!selection) return; 
+      const text = selection.toString().trim();
+      const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+      const isSelectionInsidePopup = range && document.getElementById("popup-content")?.contains(range.commonAncestorContainer);
       setSelectedText(text)
-      if (text?.length > 0) {
+      if (text.length > 0 && !isSelectionInsidePopup) {
         updatePosition();
-        setIsVisible(true)
-      } else {
+        setIsVisible(true);
+      } else if (selection.isCollapsed) {
         setIsVisible(false);
       }
     };
@@ -136,10 +178,36 @@ const ButtonContainer = () => {
   }, [isVisible, buttonPosition]);
 
   const handleTextButtonClick = async () => {
-    setStreamedContent("");
-        geminiGeneratorText(selectedText, (content) => {
-            setStreamedContent((prevContent) => prevContent + content);
-        });
+    setStreamedContent(
+    <>
+    <div style={{backgroundColor: "rgb(33, 33, 33)", fontSize: "14px"}}>{selectedText}</div>
+    <div className="wave-loader">
+        <div className="dot"></div>
+        <div className="dot"></div>
+        <div className="dot"></div>
+      </div>
+    </>
+    );
+    openAITextGenerator(selectedText, (streamedText) => {
+      
+      setStreamedContent((prevContent) =>{
+        const prevTextContent = typeof prevContent.props.children[1].props.children === "string"
+              ? prevContent.props.children[1].props.children
+              : "";
+        var newTextContent = prevTextContent + streamedText;
+       return (
+        <>
+          <div style={{backgroundColor: "rgb(33, 33, 33)", fontSize: "14px"}}>
+          {selectedText}
+          </div>
+          
+          <div className="streamed-text" style={{ color: "white", marginTop: "30px", fontSize: "14px"}}>
+              {newTextContent}
+          </div>
+        </>)
+    })
+      }
+    )
     setShowPopup(true);
     setIsVisible(false);
   };
@@ -201,8 +269,11 @@ const ButtonContainer = () => {
               const newTextContent = prevTextContent + streamedText;
              return (
               <>
+                <div style={{backgroundColor: "rgb(33, 33, 33)"}}>
                 <img src={imageData} alt="Screenshot" style={{ maxWidth: "100%", maxHeight: "200px" }}/>
-                <div style={{ color: "white", marginTop: "10px" }}>
+                </div>
+               
+                <div className="streamed-text" style={{ color: "white", marginTop: "10px" }}>
                     {newTextContent}
                 </div>
               </>)
