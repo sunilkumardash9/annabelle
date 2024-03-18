@@ -1,9 +1,8 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import type { Url } from "url";
-const fs = require('fs');
+
 
 // Access your API key as an environment variable (see "Set up your API key" above)
-const genAI = new GoogleGenerativeAI("AIzaSyCwwpvAcVtwUlPt-IEEL9K3AMWwmpFm6Co");
+const genAI = new GoogleGenerativeAI("");
 
 // Converts local file information to a GoogleGenerativeAI.Part object.
 interface GenerativePart {
