@@ -5,10 +5,13 @@ import sendIcon from "../assets/icons8-send-64.png";
 import clipIcon from "../assets/clip.png";
 import userIcon from "../assets/iuser.png";
 import systemIcon from "../assets/system.png"
+import menuIcon from "../assets/menu-2.png"
+import chatIcon from "../assets/chat.png"
+import settingsIcon from "../assets/settings.svg"
 import { geminiGeneratorText, GeminiChatGenerator } from "~llms/geminiAi";
 
 
-const ChatPopup = () => {
+const ChatPanel = () => {
   const [message, setMessage] = useState("");
   const [isButtonActive, setIsButtonActive] = useState(false);
   const [uploadedImages, setUploadedImages] = useState([]);
@@ -16,8 +19,13 @@ const ChatPopup = () => {
   const [isLoading, setIsLoading] = useState(false);
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
+  const [showMenu, setShowMenu] = useState(false);
+
+  const toggleMenu = () => {
+    setShowMenu((prevShowMenu) => !prevShowMenu);
+  };
   
-   
+ 
   useEffect(() => {
     setIsButtonActive(message.length > 0 || uploadedImages.length > 0);
 }, [message, uploadedImages]);
@@ -128,10 +136,25 @@ const ChatPopup = () => {
 };
 
   return (
-    <div className="chat-popup">
+    <div className="chat-panel">
       <header className="chat-header">
         <img src={logo} alt="Logo" className="chat-logo" />
         {/* <span className="chat-title">annabelle</span> */}
+        <button className="menu-button" onClick={toggleMenu}>
+          <img src={menuIcon} alt="Menu" />
+        </button>
+        {showMenu && (
+          <div className="menu-content">
+            <button className="menu-item" onClick={toggleMenu}>
+            <img src={chatIcon} alt="Select Models" className="menu-item-icon" />
+              Select Models
+            </button>
+            <button className="menu-item" onClick={toggleMenu}>
+            <img src={settingsIcon} alt="Select Models" className="menu-item-icon" />
+              Settings
+            </button>
+          </div>
+        )}
       </header>
       <div className="chat-messages">
           {messages.map((msg) => (
@@ -211,4 +234,4 @@ const ChatPopup = () => {
   );
 };
 
-export default ChatPopup;
+export default ChatPanel;
