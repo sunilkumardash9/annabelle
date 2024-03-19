@@ -26,7 +26,7 @@ function base64ToGenerativePart(base64Data: string,): GenerativePart {
   
     prompt = "Explain the image in simple and concise manner in 60 words.";
     
-    const imagePart = base64ToGenerativePart(base64Image, "image/png");
+    const imagePart = base64ToGenerativePart(base64Image);
     
     const result = await model.generateContentStream([prompt, imagePart]);
     const response = await result.response;
@@ -64,7 +64,6 @@ let chatSession = null;
 
 export async function GeminiChatGenerator(message: string, callback, images?) {
   // For text-only input, use the gemini-pro model
-  console.log(images)
   const model = genAI.getGenerativeModel({ model: "gemini-pro" });
   if (images && images.length>0){
     var message = await geminiGeneratorImageArray(images, message)
