@@ -14,7 +14,7 @@
 }
 
 /* Chat popup styling */
-.chat-popup {
+.chat-panel {
     position: fixed;
     background-color: black;
     color: rgb(255, 255, 255);
@@ -235,3 +235,56 @@
         transform: scale(1);
     }
 }
+
+.menu-button {
+    position: absolute;
+    top: 10px; 
+    right: 10px; 
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .menu-button img {
+    width: 24px; 
+    height: 24px; 
+  }
+
+  .menu-content {
+    position: absolute;
+    top: 40px;
+    right: 10px;
+    background-color: #000000;
+    border-radius: 4px;
+    width: 200px;
+    height: auto;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    z-index: 100;
+  
+  }
+  
+  .menu-item {
+    display: flex; /* Establish flexbox layout */
+  align-items: center; /* Align items vertically in the center */
+  padding: 10px 20px;
+  color: white;
+  background-color: transparent;
+  border: none;
+  width: 100%;
+  text-align: left; /* Text alignment is not necessary as flexbox takes care of alignment */
+  cursor: pointer;
+  text-transform: none;
+  font-size: 1rem;
+  margin: 0; /* Remove any default margins */
+
+  }
+  
+  .menu-item:hover {
+    background-color: #353536;
+  }
+  .menu-item-icon {
+    align-items: center;
+    margin-right: 15px; /* Add some space between the icon and text */
+    width: 20px; /* Adjust as needed */
+    height: 20px; /* Adjust as needed */
+  }
