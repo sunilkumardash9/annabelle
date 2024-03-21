@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
-import openAITextGenerator from "./llms/openAI";
-import {geminiGeneratorText, geminiGeneratorImage, geminiGeneratorImageArray} from "./llms/geminiAi"
 import "./loading.css"
 import openIcon from "./assets/share.svg"
+import {getDefaultTextGenerator, getDefaultMultiModalGenerator} from "./llms/defaultModel"
+
 
 const formatResponse = (response) => {
   return response.split("**").map((text, index) => {
@@ -16,7 +16,7 @@ const formatResponse = (response) => {
     }
   }).join("");
 };
-
+console.log("loaded")
 const Popup = ({ children, onClose, position }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
@@ -188,7 +188,12 @@ const ButtonContainer = () => {
       </div>
     </>
     );
-    openAITextGenerator(selectedText, (streamedText) => {
+    try{
+    const { defaultService, textGenerator } = await getDefaultTextGenerator();
+    const serviceData = await chrome.storage.sync.get(defaultService);
+    const result = serviceData[defaultService];
+
+    textGenerator(selectedText, (streamedText) => {
       
       setStreamedContent((prevContent) =>{
         const prevTextContent = typeof prevContent.props.children[1].props.children === "string"
@@ -206,8 +211,23 @@ const ButtonContainer = () => {
           </div>
         </>)
     })
-      }
-    )
+      },
+      result
+    )} catch (error){
+  
+        setStreamedContent(
+          <>
+          <div style={{backgroundColor: "rgb(33, 33, 33)", fontSize: "14px"}}>
+          {selectedText}
+          </div>
+          
+          <div className="streamed-text" style={{ color: "red", marginTop: "30px", fontSize: "14px"}}>
+              Please, provide API keys for a model.
+          </div>
+        </>
+        )
+    
+    }
     setShowPopup(true);
     setIsVisible(false);
   };
@@ -235,11 +255,11 @@ const ButtonContainer = () => {
     };
   }, [isSelecting, selectionArea]);
 
-  const captureSelectionArea = () => {
+  const captureSelectionArea = async () => {
     chrome.runtime.sendMessage({ action: "captureVisibleTab" }, (response) => {
       if (response.screenshotUrl) {
         const img = new Image();
-        img.onload = () => {
+        img.onload = async () => { // Mark this function as async
           const canvas = document.createElement("canvas");
           const ctx = canvas.getContext("2d");
           const x = Math.min(selectionArea.x, selectionArea.x + selectionArea.width);
@@ -254,38 +274,52 @@ const ButtonContainer = () => {
             <>
               <img src={imageData} alt="Screenshot" style={{ maxWidth: "100%", maxHeight: "200px" }}/>
               <div className="wave-loader">
-                 <div className="dot"></div>
-                 <div className="dot"></div>
-                 <div className="dot"></div>
+                <div className="dot"></div>
+                <div className="dot"></div>
+                <div className="dot"></div>
               </div>
             </>
           );
-          
-          geminiGeneratorImage(imageData, (streamedText) => {
-            setStreamedContent((prevContent) =>{
+          try {
+          const {imageGenerator, apiKey} = await getDefaultMultiModalGenerator();
+          imageGenerator(imageData, (streamedText) => {
+            setStreamedContent((prevContent) => {
               const prevTextContent = typeof prevContent.props.children[1].props.children === "string"
-              ? prevContent.props.children[1].props.children
-              : "";
+                ? prevContent.props.children[1].props.children
+                : "";
               const newTextContent = prevTextContent + streamedText;
-             return (
-              <>
-                <div style={{backgroundColor: "rgb(33, 33, 33)"}}>
-                <img src={imageData} alt="Screenshot" style={{ maxWidth: "100%", maxHeight: "200px" }}/>
-                </div>
-               
-                <div className="streamed-text" style={{ color: "white", marginTop: "10px" }}>
+              return (
+                <>
+                  <div style={{backgroundColor: "rgb(33, 33, 33)"}}>
+                    <img src={imageData} alt="Screenshot" style={{ maxWidth: "100%", maxHeight: "200px" }}/>
+                  </div>
+                 
+                  <div className="streamed-text" style={{ color: "white", marginTop: "10px" }}>
                     {newTextContent}
-                </div>
-              </>)
-          })
-            }
+                  </div>
+                </>
+              );
+            });
+          }, apiKey);
+        } catch (error){
+          setStreamedContent(
+          <>
+            <div style={{backgroundColor: "rgb(33, 33, 33)"}}>
+              <img src={imageData} alt="Screenshot" style={{ maxWidth: "100%", maxHeight: "200px" }}/>
+            </div>
+            <div className="streamed-text" style={{ color: "red", marginTop: "10px" }}>
+              Please recheck your Gemini API key
+            </div>
+          </>
           )
-        };
+
+        }
+        ;}
         img.src = response.screenshotUrl;
       }
     });
   };
-  
+
 
   const handleClosePopup = () => {
     setShowPopup(false);
