@@ -1,10 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-
-// Access your API key as an environment variable (see "Set up your API key" above)
-const genAI = new GoogleGenerativeAI("");
-
-// Converts local file information to a GoogleGenerativeAI.Part object.
 interface GenerativePart {
     inlineData: {
       data: string;
@@ -20,11 +15,12 @@ function base64ToGenerativePart(base64Data: string,): GenerativePart {
     };
   }
 
-  export async function geminiGeneratorImage(base64Image: string, callback: (text: string) => void, prompt?: string, stream:boolean=true) {
-    // Assume genAI is a global variable with the appropriate type
+  export async function geminiGeneratorImage(base64Image: string, callback: (text: string) => void, apiKey?:string) {
+
+    const genAI = new GoogleGenerativeAI(apiKey);
     const model = (genAI as any).getGenerativeModel({ model: "gemini-pro-vision" });
-  
-    prompt = "Explain the image in simple and concise manner in 60 words.";
+    try {
+    var prompt = "Explain the image in simple and concise manner in 60 words.";
     
     const imagePart = base64ToGenerativePart(base64Image);
     
@@ -35,19 +31,35 @@ function base64ToGenerativePart(base64Data: string,): GenerativePart {
       callback(chunkText);
     }
   }
-  export async function geminiGeneratorText(message: string, callback?, prompt?: string) {
-    const model = genAI.getGenerativeModel({ model: "gemini-pro"});
+ catch (error){
+      callback("Recheck your Gemini API Key.")
+    }
+}
+ 
+  export async function geminiTextGenerator(
+    message: string,
+    callback,
+    options: {
+        apiKey?: string,
+        prompt?: string
+    } = {}
+) {
+    const { apiKey, prompt = "You are a helpful assistant. Explain the given texts in a simple and concise manner. " } = options;
+
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
   
-    prompt = "You are a helpful asssistant. Explain the given texts in a simple and concise manner. "
-    message = prompt+message
+    message = prompt + message;
     const result = await model.generateContentStream(message);
+
     for await (const chunk of result.stream) {
         const chunkText = chunk.text();
-        callback(chunkText)
-  }
-  }
-export async function geminiGeneratorImageArray(base64Images, prompt?: string, stream:boolean=true): Promise<string> {
-    // Assume genAI is a global variable with the appropriate type
+        callback(chunkText);
+    }
+}
+
+export async function geminiGeneratorImageArray(base64Images, apiKey?: string): Promise<string> {
+    const genAI = new GoogleGenerativeAI(apiKey);
     const model = (genAI as any).getGenerativeModel({ model: "gemini-pro-vision" });
   
     const imageParts = await Promise.all(
@@ -62,8 +74,8 @@ export async function geminiGeneratorImageArray(base64Images, prompt?: string, s
 
 let chatSession = null;
 
-export async function GeminiChatGenerator(message: string, callback, images?) {
-  // For text-only input, use the gemini-pro model
+export async function GeminiChatGenerator(message: string, callback, images?, apiKey?:string) {
+  const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({ model: "gemini-pro" });
   if (images && images.length>0){
     var message = await geminiGeneratorImageArray(images, message)

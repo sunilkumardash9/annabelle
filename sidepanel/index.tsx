@@ -149,7 +149,7 @@ const ChatPanel = () => {
             <img src={chatIcon} alt="Select Models" className="menu-item-icon" />
               Select Models
             </button>
-            <button className="menu-item" onClick={toggleMenu}>
+            <button className="menu-item" onClick={()=>{chrome.runtime.openOptionsPage();}}>
             <img src={settingsIcon} alt="Select Models" className="menu-item-icon" />
               Settings
             </button>
