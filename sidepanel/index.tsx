@@ -22,11 +22,16 @@ const ChatPanel = () => {
   const [showMenu, setShowMenu] = useState(false);
   const [messageList, setMessageList] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
-
+  const [geminiCredential, setGeminiCredentials] = useState(null)
+  
+  chrome.storage.sync.get(['gemini'], function(result){
+    if(result.gemini){
+       setGeminiCredentials(result.gemini)
+    }
+  })
   const toggleMenu = () => {
     setShowMenu((prevShowMenu) => !prevShowMenu);
   };
-  
  
   useEffect(() => {
     setIsButtonActive(message.length > 0 || uploadedImages.length > 0);
@@ -80,7 +85,10 @@ const handleSendMessage = async (event) => {
                   const { defaultService, chatGenerator } = await getDefaultChatGenerator();
                   const serviceData = await chrome.storage.sync.get(defaultService);
                   const result = serviceData[defaultService];
-                  console.log(result, "inside setmessage list")
+                  if (geminiCredential){
+                    result['geminiKey'] = geminiCredential.apiKey
+                  }
+                  console.log(result, 'result dict')
                   await chatGenerator(updatedMessageList, (chunkText) => {
                       systemResponse += chunkText;
                   }, uploadedImages, result);
@@ -112,8 +120,8 @@ const handleSendMessage = async (event) => {
 };
 
   const handleUploadClick = (event) => {
-    chrome.storage.sync.get(['gemini'], function(result) {
-      if (result.gemini) {
+    // chrome.storage.sync.get(['gemini'], function(result) {
+      if (geminiCredential) {
         fileInputRef.current.click();
         setErrorMessage("");
       } else {
@@ -122,8 +130,8 @@ const handleSendMessage = async (event) => {
           setErrorMessage("");
         }, 2000);
       }
-    });
-  }
+    };
+  
 
   const handleFileChange = (event) => {
     const files = event.target.files;

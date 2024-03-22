@@ -33,15 +33,16 @@ export async function openAIChatGenerator(
       apiKey?: string,
       baseApiUrl?: string,
       model?: string
+      geminiKey?:string
   } = {}
 ) {
-  const { apiKey, baseApiUrl = "https://api.together.xyz/v1", model = "teknium/OpenHermes-2p5-Mistral-7B" } = options;
+  const { apiKey, baseApiUrl = "https://api.together.xyz/v1", model = "teknium/OpenHermes-2p5-Mistral-7B", geminiKey='' } = options;
   const openai = new OpenAI({ apiKey, baseURL: baseApiUrl, dangerouslyAllowBrowser: true });
   
   const lastDict = chat[chat.length-1]
   var userMessage = lastDict.content
   if (images && images.length>0){
-    userMessage = await geminiGeneratorImageArray(images, userMessage)
+    userMessage = await geminiGeneratorImageArray(images, userMessage, geminiKey)
     var prompt = "This is an explanation for a prompt and images from the user, generate a step-by-step detail explanation for the texts in a conversational tone. ";
     userMessage = prompt + userMessage;
   }
