@@ -27,6 +27,7 @@
     border: none;
     box-shadow: none;
     padding-bottom: 20px;
+    overflow: hidden;
 }
 
 .chat-header {
@@ -287,4 +288,13 @@
     margin-right: 15px; /* Add some space between the icon and text */
     width: 20px; /* Adjust as needed */
     height: 20px; /* Adjust as needed */
+  }
+
+  .error-message {
+    background-color: #0e0d0d; 
+    color: #cc0000; 
+    padding: 10px;
+    margin: 10px;
+    border-radius: 5px;
+    text-align: center;
   }

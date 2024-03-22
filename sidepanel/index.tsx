@@ -8,7 +8,7 @@ import systemIcon from "../assets/system.png"
 import menuIcon from "../assets/menu-2.png"
 import chatIcon from "../assets/chat.png"
 import settingsIcon from "../assets/settings.svg"
-import { geminiGeneratorText, GeminiChatGenerator } from "~llms/geminiAi";
+import { getDefaultChatGenerator } from "~llms/defaultModel";
 
 
 const ChatPanel = () => {
@@ -20,6 +20,8 @@ const ChatPanel = () => {
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
   const [showMenu, setShowMenu] = useState(false);
+  const [messageList, setMessageList] = useState([]);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const toggleMenu = () => {
     setShowMenu((prevShowMenu) => !prevShowMenu);
@@ -52,51 +54,76 @@ const ChatPanel = () => {
     setUploadedImages([]);
   };
 
-  const handleSendMessage = async (event) => {
-    event.preventDefault();
-    if (message.trim() || uploadedImages.length > 0) {
-        const userMessage = {
-            id: Date.now(),
-            text: message,
-            images: uploadedImages,
-            sender: 'user',
-        };
-        setIsLoading(true)
+const handleSendMessage = async (event) => {
+  event.preventDefault();
+  if (message.trim() || uploadedImages.length > 0) {
+      const userMessage = {
+          id: Date.now(),
+          text: message,
+          images: uploadedImages,
+          sender: 'user',
+      };
+      setIsLoading(true)
 
-        // Add the user's message to the messages array
-        setMessages((prevMessages) => [...prevMessages, userMessage]);
+      // Add the user's message to the messages array
+      setMessages((prevMessages) => [...prevMessages, userMessage]);
 
-        // Clear the message input and uploaded images
-        setMessage("");
-        setUploadedImages([]);
+      // Update messageList and use the updated list in chatGenerator
+      setMessageList((prevMessageList) => {
+          const updatedMessageList = [...prevMessageList, {"role": "user", "content": userMessage.text}];
+          setMessage("");
+          setUploadedImages([]);
+          let systemResponse = '';
+          (async () => {
+              try {
+                  console.log(updatedMessageList)
+                  const { defaultService, chatGenerator } = await getDefaultChatGenerator();
+                  const serviceData = await chrome.storage.sync.get(defaultService);
+                  const result = serviceData[defaultService];
+                  console.log(result, "inside setmessage list")
+                  await chatGenerator(updatedMessageList, (chunkText) => {
+                      systemResponse += chunkText;
+                  }, uploadedImages, result);
 
-        // Accumulate the response from the geminiGeneratorText function
-        let systemResponse = '';
-        await GeminiChatGenerator(message, (chunkText) => {
-            systemResponse += chunkText;
-        }, uploadedImages);
+                  // Add the complete system response as a single message
+                  const systemMessage = {
+                      id: Date.now() + 1,
+                      text: systemResponse,
+                      images: [],
+                      sender: 'system',
+                  };
+                  setMessageList((prevMessageList)=> [...prevMessageList, {"role": "assistant", "content": systemResponse}])
+                  setMessages((prevMessages) => [...prevMessages, systemMessage]);
+                  setIsLoading(false);
+              } catch (error) {
+                  console.log(error);
+              }
+          })();
 
-        // Add the complete system response as a single message
-        const systemMessage = {
-            id: Date.now() + 1,
-            text: systemResponse,
-            images: [],
-            sender: 'system',
-        };
-        setMessages((prevMessages) => [...prevMessages, systemMessage]);
-        setIsLoading(false);
-        // Reset the height of the textarea if needed
-        const textarea = textareaRef.current;
-        if (textarea) {
-            textarea.style.height = '20px';
-        }
-    }
+          // Reset the height of the textarea if needed
+          const textarea = textareaRef.current;
+          if (textarea) {
+              textarea.style.height = '20px';
+          }
+
+          return updatedMessageList;
+      });
+  }
 };
 
-
   const handleUploadClick = (event) => {
-    fileInputRef.current.click();
-  };
+    chrome.storage.sync.get(['gemini'], function(result) {
+      if (result.gemini) {
+        fileInputRef.current.click();
+        setErrorMessage("");
+      } else {
+        setErrorMessage("Please set the Gemini credential in settings before uploading an image.");
+        setTimeout(() => {
+          setErrorMessage("");
+        }, 2000);
+      }
+    });
+  }
 
   const handleFileChange = (event) => {
     const files = event.target.files;
@@ -134,7 +161,10 @@ const ChatPanel = () => {
         reader.readAsDataURL(files[0]);
     }
 };
-
+const resetChat = () => {
+    setMessages([])
+    setMessageList([])
+}
   return (
     <div className="chat-panel">
       <header className="chat-header">
@@ -145,9 +175,9 @@ const ChatPanel = () => {
         </button>
         {showMenu && (
           <div className="menu-content">
-            <button className="menu-item" onClick={toggleMenu}>
+            <button className="menu-item" onClick={resetChat}>
             <img src={chatIcon} alt="Select Models" className="menu-item-icon" />
-              Select Models
+              Reset chat
             </button>
             <button className="menu-item" onClick={()=>{chrome.runtime.openOptionsPage();}}>
             <img src={settingsIcon} alt="Select Models" className="menu-item-icon" />
@@ -181,7 +211,6 @@ const ChatPanel = () => {
     )
   }
 </div>
-
       <div className="uploaded-images-container">
         {uploadedImages.map((imageSrc, index) => (
             <div key={index} className="uploaded-image">
@@ -189,13 +218,17 @@ const ChatPanel = () => {
                 <button
                     className="cancel-image-button"
                     onClick={() => handleRemoveImage(index)}
-
                 >
                  X
               </button>
             </div>
         ))}
     </div>
+    {errorMessage && (
+      <div className="error-message">
+        {errorMessage}
+      </div>
+    )}
       <form onSubmit={handleSubmit} className="chat-form">
         <div className="chat-input-container">
            <textarea

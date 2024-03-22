@@ -9,6 +9,7 @@ function optionsPage() {
   const [activeToggle, setActiveToggle] = useState(null);
   const [OpenAIMessage, setOpenAIMessage] = useState('');
   const [geminiMessage, setGeminiMessage] = useState('');
+
   const [openAI, setOpenAICredentials] = useState({
     serviceName: 'OpenAI',
     baseApiUrl: '',
@@ -34,15 +35,8 @@ const handleToggle = (toggleName) => {
     }
 };
 
-const defaultService = (serviceName) => {
-  setActiveToggle(serviceName);
-  chrome.storage.sync.set({ defaultService: serviceName }, () => {
-    console.log(`Default service set to ${serviceName}`);
-  });
-}
 
 const handleSave = (serviceName) => {
-  let defaultService = null;
 
   if (serviceName === 'openAI') {
     if (openAI.apiKey) {
@@ -50,9 +44,6 @@ const handleSave = (serviceName) => {
         console.log('OpenAI data saved:', openAI);
         setOpenAIMessage(serviceName + ' credentials saved successfully');
         setTimeout(() => setOpenAIMessage(''), 2000);
-        defaultService = 'openAI';
-        // handleToggle(defaultService)
-        setActiveToggle(defaultService)
       });
     } else {
       setOpenAIMessage("Fill in the required fields")
@@ -64,9 +55,6 @@ const handleSave = (serviceName) => {
         console.log('Gemini data saved:', gemini);
         setGeminiMessage(serviceName + ' credentials saved successfully');
         setTimeout(() => setGeminiMessage(''), 2000);
-        defaultService = 'gemini';
-        // handleToggle(defaultService)
-        setActiveToggle(defaultService)
       });
     } else {
       setGeminiMessage("Fill in the required fields")
@@ -75,9 +63,14 @@ const handleSave = (serviceName) => {
   }
 
   // Update default service
-  chrome.storage.sync.set({ defaultService }, () => {
-    console.log(`Default service set to ${defaultService}`);
+  setActiveToggle(serviceName)
+  chrome.storage.sync.set({ serviceName }, () => {
+    console.log(`Default service set to ${serviceName}`);
   });
+  chrome.storage.sync.get('defaultService', (result) => {
+    console.log('This is defaultService: ' + result.defaultService);
+});
+  
 };
 
 
@@ -231,7 +224,7 @@ useEffect(() => {
           <div>
             <h1>About</h1>
             <p style={{fontSize: "20px"}}>An open-source AI web assistant that let's you use Gemini and model's that support OpenAI API format.
-            <br/>Star us on Github <a href='https://github.com/sunilkumardash9/annabelle' style={{color:"blue"}}> annabelle</a></p>
+            <br/>Star us on Github <a href='https://github.com/sunilkumardash9/annabelle' style={{color:"blue"}}> annabelle.</a></p>
           </div>
         ) : (
           <h1>Main Content</h1>
