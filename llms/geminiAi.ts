@@ -58,7 +58,8 @@ function base64ToGenerativePart(base64Data: string,): GenerativePart {
     }
 }
 
-export async function geminiGeneratorImageArray(base64Images, apiKey?: string): Promise<string> {
+export async function geminiGeneratorImageArray(base64Images, prompt, apiKey?: string): Promise<string> {
+   try{
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = (genAI as any).getGenerativeModel({ model: "gemini-pro-vision" });
   
@@ -70,17 +71,33 @@ export async function geminiGeneratorImageArray(base64Images, apiKey?: string): 
     const response = await result.response;
     return response.text();
     
+  } catch (error){
+    return "Please check your Gemini API key."
   }
-
+}
 let chatSession = null;
 
-export async function GeminiChatGenerator(message: string, callback, images?, apiKey?:string) {
+export async function geminiChatGenerator(
+     chat,
+     callback,
+     images?, 
+     options: {
+      apiKey?: string,
+      model_name?: string
+  } = {}
+  ) {
+
+  const { apiKey, model_name = "gemini-pro" } = options;
+
   const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+
+  const model = genAI.getGenerativeModel({ model: model_name });
+  const lastDict = chat[chat.length-1]
+  var userMessage = lastDict.content
   if (images && images.length>0){
-    var message = await geminiGeneratorImageArray(images, message)
+    userMessage = await geminiGeneratorImageArray(images, userMessage, apiKey)
     var prompt = "This is an explanation for a prompt and images from the user, generate a step-by-step detail explanation for the texts in a conversational tone. ";
-    var message = prompt + message;
+    userMessage = prompt + userMessage;
   }
   // Initialize the chat session only if it doesn't exist
   if (!chatSession) {
@@ -91,8 +108,7 @@ export async function GeminiChatGenerator(message: string, callback, images?, ap
       },
     });
   }
-
-  const result = await chatSession.sendMessageStream(message);
+  const result = await chatSession.sendMessageStream(userMessage);
   for await (const chunk of result.stream) {
     const chunkText = chunk.text();
     callback(chunkText);
