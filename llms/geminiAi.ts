@@ -77,32 +77,7 @@ export async function geminiGeneratorImageArray(base64Images, prompt, apiKey?: s
 }
 let chatSession = null;
 
-// export async function geminiChatGenerator(message: string, callback, images?, apiKey?:string) {
-//   const genAI = new GoogleGenerativeAI(apiKey);
-//   const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-//   if (images && images.length>0){
-//     var message = await geminiGeneratorImageArray(images, message)
-//     var prompt = "This is an explanation for a prompt and images from the user, generate a step-by-step detail explanation for the texts in a conversational tone. ";
-//     var message = prompt + message;
-//   }
-//   // Initialize the chat session only if it doesn't exist
-//   if (!chatSession) {
-//     chatSession = model.startChat({
-//       history: [],
-//       generationConfig: {
-//         maxOutputTokens: 2048,
-//       },
-//     });
-//   }
-
-//   const result = await chatSession.sendMessageStream(message);
-//   for await (const chunk of result.stream) {
-//     const chunkText = chunk.text();
-//     callback(chunkText);
-//   }
-// }
-
-export async function geminiChatGenerator_(
+export async function geminiChatGenerator(
      chat,
      callback,
      images?, 

@@ -67,9 +67,6 @@ const handleSave = (serviceName) => {
   chrome.storage.sync.set({ serviceName }, () => {
     console.log(`Default service set to ${serviceName}`);
   });
-  chrome.storage.sync.get('defaultService', (result) => {
-    console.log('This is defaultService: ' + result.defaultService);
-});
   
 };
 

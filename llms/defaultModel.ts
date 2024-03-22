@@ -1,5 +1,5 @@
 import { openAITextGenerator, openAIChatGenerator } from "./openAI";
-import { geminiTextGenerator, geminiGeneratorImage, geminiChatGenerator_ } from "./geminiAi";
+import { geminiTextGenerator, geminiGeneratorImage, geminiChatGenerator } from "./geminiAi";
 
 export async function getDefaultTextGenerator() {
     const { defaultService } = await chrome.storage.sync.get('defaultService');
@@ -25,7 +25,7 @@ export async function getDefaultChatGenerator() {
         case 'openAI':
             return { defaultService, chatGenerator: openAIChatGenerator };
         case 'gemini':
-            return { defaultService, chatGenerator: geminiChatGenerator_ };
+            return { defaultService, chatGenerator: geminiChatGenerator };
         default:
             throw new Error('Invalid default service zazaza');
     }
