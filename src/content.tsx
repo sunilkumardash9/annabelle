@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import "./loading.css"
-import openIcon from "./assets/share.svg"
+import openIcon from "../assets/share.svg"
 import {getDefaultTextGenerator, getDefaultMultiModalGenerator} from "./llms/defaultModel"
 
 
