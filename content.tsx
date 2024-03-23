@@ -16,7 +16,9 @@ const formatResponse = (response) => {
     }
   }).join("");
 };
-console.log("loaded")
+const handleOpenSidePanel = () => {
+  chrome.runtime.sendMessage({ action: "openSidePanel" });
+};
 const Popup = ({ children, onClose, position }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
@@ -70,9 +72,6 @@ const Popup = ({ children, onClose, position }) => {
     };
   }, [isDragging, dragStart, onClose]);
 
-  const handleOpenSidePanel = () => {
-    chrome.runtime.sendMessage({ action: "openSidePanel" });
-  };
 
   return (
     <div
@@ -136,8 +135,9 @@ const ButtonContainer = () => {
     const rect = range.getBoundingClientRect();
 
     setButtonPosition({
-      top: rect.top + window.scrollY - 40,
-      left: Math.min(rect.right + window.scrollX, window.innerWidth - 120),
+      top: rect.bottom + window.scrollY + 10,
+      left: rect.left + window.scrollX + (rect.width) / 2,
+      
     });
   };
 
@@ -336,7 +336,7 @@ const ButtonContainer = () => {
     setSelectionArea({ x: 0, y: 0, width: 0, height: 0 });
   };
 
-
+const bg_btn_color = "#1950a8"
   return (
     <>
       {isVisible && (
@@ -346,15 +346,17 @@ const ButtonContainer = () => {
             top: buttonPosition.top,
             left: buttonPosition.left,
             display: "flex",
+            backgroundColor: bg_btn_color,
+            borderRadius: "10px",
           }}
         >
           <button
             style={{
-              marginRight: "5px",
+              marginRight: "0px",
               borderRadius: "20px",
-              backgroundColor: "indigo",
+              backgroundColor: bg_btn_color,
               color: "white",
-              padding: "5px 15px",
+              padding: "5px 5px",
               border: "none",
               cursor: "pointer",
             }}
@@ -365,15 +367,21 @@ const ButtonContainer = () => {
           <button
             style={{
               borderRadius: "20px",
-              backgroundColor: "indigo",
+              backgroundColor: bg_btn_color,
               color: "white",
-              padding: "5px 15px",
+              padding: "5px 5px",
               border: "none",
               cursor: "pointer",
             }}
             onClick={handleImageButtonClick}
           > 
             Image
+          </button>
+          <button style={{borderRadius: "10px", backgroundColor: bg_btn_color, border: "None", alignItems:"center"}}>
+            <img src={openIcon}
+            alt="Open Side Panel"
+            style={{ width: '20px', height: '20px'}}
+            onClick={handleOpenSidePanel}/>
           </button>
         </div>
       )}
