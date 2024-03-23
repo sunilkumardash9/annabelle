@@ -1,6 +1,6 @@
 @font-face {
     font-family: 'Dune-Rise';
-    src: url('../assets/Dune_Rise.otf') format('opentype');
+    src: url('../../assets/Dune_Rise.otf') format('opentype');
     font-weight: bold;
     font-style: bold;
 }

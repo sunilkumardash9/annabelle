@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./chat.css";
-import logo from "../assets/annabelle_bold.png";
-import sendIcon from "../assets/icons8-send-64.png";
-import clipIcon from "../assets/clip.png";
-import userIcon from "../assets/iuser.png";
-import systemIcon from "../assets/system.png"
-import menuIcon from "../assets/menu-2.png"
-import chatIcon from "../assets/chat.png"
-import settingsIcon from "../assets/settings.svg"
-import { getDefaultChatGenerator } from "~llms/defaultModel";
+import logo from "../../assets/annabelle_bold.png";
+import sendIcon from "../../assets/icons8-send-64.png";
+import clipIcon from "../../assets/clip.png";
+import userIcon from "../../assets/iuser.png";
+import systemIcon from "../../assets/system.png"
+import menuIcon from "../../assets/menu-2.png"
+import chatIcon from "../../assets/chat.png"
+import settingsIcon from "../../assets/settings.svg"
+import { getDefaultChatGenerator } from "../llms/defaultModel";
 
 
 const ChatPanel = () => {
