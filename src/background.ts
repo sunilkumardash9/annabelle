@@ -1,13 +1,3 @@
-// background.ts
-// chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-//     if (request.action === "captureVisibleTab") {
-//       chrome.tabs.captureVisibleTab(null, { format: "png" }, (url) => {
-//         sendResponse({ screenshotUrl: url });
-//       });
-//       return true; // Indicates that the response is asynchronous
-//     }
-    
-//   });
 const handleOpenSidePanel = () => {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     if (!tabs[0]) {
@@ -30,17 +20,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       chrome.tabs.captureVisibleTab(null, { format: "png" }, (url) => {
         sendResponse({ screenshotUrl: url });
       });
-      return true; // Indicates that the response is asynchronous
+      return true;
 
     case "openSidePanel":
       handleOpenSidePanel();
       sendResponse({ success: true });
-      return true; // Indicates that the response is asynchronous
-
-    // Add more cases for other actions here
-
+      return true;
     default:
-      // Handle unknown actions or do nothing
       break;
   }
 });
