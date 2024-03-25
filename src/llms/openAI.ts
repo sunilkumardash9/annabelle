@@ -36,7 +36,7 @@ export async function openAIChatGenerator(
       geminiKey?:string
   } = {}
 ) {
-  const { apiKey, baseApiUrl = "https://api.together.xyz/v1", model = "teknium/OpenHermes-2p5-Mistral-7B", geminiKey='' } = options;
+  const { apiKey, baseApiUrl = "https://api.openai.com/v1", model = "gpt-3.5-turbo", geminiKey='' } = options;
   const openai = new OpenAI({ apiKey, baseURL: baseApiUrl, dangerouslyAllowBrowser: true });
   
   const lastDict = chat[chat.length-1]

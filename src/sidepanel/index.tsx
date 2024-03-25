@@ -176,8 +176,8 @@ const resetChat = () => {
   return (
     <div className="chat-panel">
       <header className="chat-header">
-        <img src={logo} alt="Logo" className="chat-logo" />
-        {/* <span className="chat-title">annabelle</span> */}
+        {/* <img src={logo} alt="Logo" className="chat-logo" /> */}
+        <span className="chat-title">annabelle</span>
         <button className="menu-button" onClick={toggleMenu}>
           <img src={menuIcon} alt="Menu" />
         </button>

@@ -64,9 +64,12 @@ const handleSave = (serviceName) => {
 
   // Update default service
   setActiveToggle(serviceName)
-  chrome.storage.sync.set({ serviceName }, () => {
+  chrome.storage.sync.set({ defaultService: serviceName }, () => {
     console.log(`Default service set to ${serviceName}`);
   });
+  chrome.storage.sync.get('defaultService', (result) => {
+    console.log('This is defaultService: ' + result.defaultService);
+});
   
 };
 

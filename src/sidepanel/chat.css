@@ -36,7 +36,10 @@
     align-items: center;
     margin-bottom: 10px;
 }
-
+.chat-title{
+    font-weight: bold;
+    font-size: 26;
+}
 .chat-logo {
     width: 150px; /* Adjusted to fit the side panel */
     height: auto;

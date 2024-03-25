@@ -25,9 +25,6 @@ const Popup = ({ children, onClose, position }) => {
   const [popupPosition, setPopupPosition] = useState(position);
 
   const handleMouseDown = (event) => {
-    // setIsDragging(true);
-    // setDragStart({ x: event.clientX, y: event.clientY });
-    // event.preventDefault(); // Prevent text selection
     if (!event.target.classList.contains("streamed-text")) {
       setIsDragging(true);
       setDragStart({ x: event.clientX, y: event.clientY });
@@ -180,7 +177,9 @@ const ButtonContainer = () => {
   const handleTextButtonClick = async () => {
     setStreamedContent(
     <>
-    <div style={{backgroundColor: "rgb(33, 33, 33)", fontSize: "14px"}}>{selectedText}</div>
+    <div style={{ backgroundColor: "rgb(33, 33, 33)", fontSize: "14px", marginTop: "30px" }}>
+        {selectedText}
+      </div>
     <div className="wave-loader">
         <div className="dot"></div>
         <div className="dot"></div>
@@ -202,11 +201,10 @@ const ButtonContainer = () => {
         var newTextContent = prevTextContent + streamedText;
        return (
         <>
-          <div style={{backgroundColor: "rgb(33, 33, 33)", fontSize: "14px"}}>
-          {selectedText}
-          </div>
-          
-          <div className="streamed-text" style={{ color: "white", marginTop: "30px", fontSize: "14px"}}>
+        <div style={{ backgroundColor: "rgb(33, 33, 33)", fontSize: "14px", marginTop: "30px" }} >
+        {selectedText}
+       </div>
+      <div style={{ color: "white", marginTop: "30px", fontSize: "14px"}}>
               {newTextContent}
           </div>
         </>)
@@ -217,9 +215,11 @@ const ButtonContainer = () => {
   
         setStreamedContent(
           <>
-          <div style={{backgroundColor: "rgb(33, 33, 33)", fontSize: "14px"}}>
-          {selectedText}
-          </div>
+         <div
+        style={{ backgroundColor: "rgb(33, 33, 33)", fontSize: "14px", marginTop: "30px" }}
+      >
+        {selectedText}
+      </div>
           
           <div className="streamed-text" style={{ color: "red", marginTop: "30px", fontSize: "14px"}}>
               Please, provide API keys for a model.
