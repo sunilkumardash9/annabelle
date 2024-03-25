@@ -1,4 +1,20 @@
-This is a [Plasmo extension](https://docs.plasmo.com/) project bootstrapped with [`plasmo init`](https://www.npmjs.com/package/plasmo).
+# annabelle - a simple and clean open-source web co-pilot.
+
+This is not yet on the Chrome web store, will update it when available.
+
+## how it works
+
+https://github.com/sunilkumardash9/annabelle/assets/47926185/1ff3d95a-f5da-4a11-8692-281ea55aa274
+
+## Side Panel
+ ![Screenshot from 2024-03-25 18-12-58](https://github.com/sunilkumardash9/annabelle/assets/47926185/2b16aa59-6b4c-4872-8c54-dd61c0f9a64c)
+
+## options page for manually adding Key 
+![Screenshot from 2024-03-25 18-16-19](https://github.com/sunilkumardash9/annabelle/assets/47926185/07163913-66d7-4dc3-bc86-3a213deacd9a)
+
+## Inference APIs
+Currently supports all the inference providers that follows the OpenAI API format such as, Together, Anyscale, etc, and also Google's Gemini.
+Multi-modality is exclusively supported via Gemini Pro Vision model for now.
 
 ## Getting Started
 
@@ -10,11 +26,8 @@ pnpm dev
 npm run dev
 ```
 
-Open your browser and load the appropriate development build. For example, if you are developing for the chrome browser, using manifest v3, use: `build/chrome-mv3-dev`.
+Open your browser and load the appropriate development build. For example, if you are developing for the Chrome browser, using manifest v3, use: `build/chrome-mv3-dev`.
 
-You can start editing the popup by modifying `popup.tsx`. It should auto-update as you make changes. To add an options page, simply add a `options.tsx` file to the root of the project, with a react component default exported. Likewise to add a content page, add a `content.ts` file to the root of the project, importing some module and do some logic, then reload the extension on your browser.
-
-For further guidance, [visit our Documentation](https://docs.plasmo.com/)
 
 ## Making production build
 
@@ -26,8 +39,4 @@ pnpm build
 npm run build
 ```
 
-This should create a production bundle for your extension, ready to be zipped and published to the stores.
-
-## Submit to the webstores
-
-The easiest way to deploy your Plasmo extension is to use the built-in [bpp](https://bpp.browser.market) GitHub action. Prior to using this action however, make sure to build your extension and upload the first version to the store to establish the basic credentials. Then, simply follow [this setup instruction](https://docs.plasmo.com/framework/workflows/submit) and you should be on your way for automated submission!
+To use it in a Chromium-based browser (Chrome, Edge, Brave, etc.), enable developer mode on the browser, click on load unpacked, select the `build/chrome-mv3-dev` folder in your cloned repository, refresh the pages, and start using the co-pilot.
